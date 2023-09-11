@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:drishya_picker/drishya_picker.dart';
 import 'package:drishya_picker/src/gallery/src/repo/gallery_repository.dart';
 import 'package:drishya_picker/src/gallery/src/widgets/album_builder.dart';
@@ -10,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ///
-class GalleryGridView extends StatelessWidget {
+class GalleryGridView extends StatefulWidget {
   ///
   const GalleryGridView({
     Key? key,
@@ -29,22 +30,53 @@ class GalleryGridView extends StatelessWidget {
   final VoidCallback? onClosePressed;
 
   @override
+  State<GalleryGridView> createState() => _GalleryGridViewState();
+}
+
+class _GalleryGridViewState extends State<GalleryGridView> {
+  final controller = DragSelectGridViewController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(scheduleRebuild);
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(scheduleRebuild);
+    super.dispose();
+  }
+
+  void scheduleRebuild() {
+    for (final index in controller.value.selectedIndexes) {
+      final entity = currentAlbum?.value.entities[index - 1].toDrishya;
+      if (entity != null) {
+        widget.controller.select(context, entity);
+      }
+    }
+    setState(() {});
+  }
+
+  Album? currentAlbum;
+
+  @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: controller.panelSetting.foregroundColor,
+      color: widget.controller.panelSetting.foregroundColor,
       child: CurrentAlbumBuilder(
-        albums: albums,
+        albums: widget.albums,
         builder: (context, album, child) {
+          currentAlbum = album;
           return ValueListenableBuilder<AlbumValue>(
             valueListenable: album,
             builder: (context, value, child) {
               // Error
-              if (value.state == BaseState.unauthorised &&
-                  value.entities.isEmpty) {
+              if (value.state == BaseState.unauthorised && value.entities.isEmpty) {
                 return GalleryPermissionView(
                   onRefresh: () {
                     if (value.assetPathEntity == null) {
-                      albums.fetchAlbums(controller.setting.requestType);
+                      widget.albums.fetchAlbums(widget.controller.setting.requestType);
                     } else {
                       album.fetchAssets();
                     }
@@ -53,8 +85,7 @@ class GalleryGridView extends StatelessWidget {
               }
 
               // No data
-              if (value.state == BaseState.completed &&
-                  value.entities.isEmpty) {
+              if (value.state == BaseState.completed && value.entities.isEmpty) {
                 return const Center(
                   child: Text(
                     'No media available',
@@ -79,31 +110,31 @@ class GalleryGridView extends StatelessWidget {
               }
 
               final entities = value.entities;
-              final enableCamera = controller.setting.enableCamera;
+              final enableCamera = widget.controller.setting.enableCamera;
 
-              final itemCount = albums.value.state == BaseState.fetching
+              final itemCount = widget.albums.value.state == BaseState.fetching
                   ? 20
                   : enableCamera
                       ? entities.length + 1
                       : entities.length;
-
               return LazyLoadScrollView(
                 onEndOfPage: album.fetchAssets,
                 scrollOffset: MediaQuery.of(context).size.height * 0.4,
-                child: GridView.builder(
-                  controller: controller.panelController.scrollController,
+                child: DragSelectGridView(
+                  gridController: controller,
+                  scrollController: widget.controller.panelController.scrollController,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: controller.setting.crossAxisCount ?? 3,
+                    crossAxisCount: widget.controller.setting.crossAxisCount ?? 3,
                     crossAxisSpacing: 1.5,
                     mainAxisSpacing: 1.5,
                   ),
                   itemCount: itemCount,
                   padding: EdgeInsets.zero,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (context, index, isSelected) {
                     if (enableCamera && index == 0) {
                       return InkWell(
                         onTap: () {
-                          controller.openCamera(context).then((value) {
+                          widget.controller.openCamera(context).then((value) {
                             if (value != null) {
                               album.insert(value);
                             }
@@ -119,13 +150,16 @@ class GalleryGridView extends StatelessWidget {
 
                     final ind = enableCamera ? index - 1 : index;
 
-                    final entity = albums.value.state == BaseState.fetching
-                        ? null
-                        : entities[ind];
+                    final entity =
+                        widget.albums.value.state == BaseState.fetching ? null : entities[ind];
 
                     if (entity == null) return const SizedBox();
 
-                    return _MediaTile(controller: controller, entity: entity);
+                    return _MediaTile(
+                      controller: widget.controller,
+                      entity: entity,
+                      isSelected: isSelected,
+                    );
                   },
                 ),
               );
@@ -146,6 +180,7 @@ class _MediaTile extends StatelessWidget {
     Key? key,
     required this.entity,
     required this.controller,
+    required this.isSelected,
   }) : super(key: key);
 
   ///
@@ -153,6 +188,9 @@ class _MediaTile extends StatelessWidget {
 
   ///
   final AssetEntity entity;
+
+  ///
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -199,12 +237,10 @@ class _SelectionCount extends StatelessWidget {
     return GalleryBuilder(
       controller: controller,
       builder: (value, child) {
-        final actionBased =
-            controller.setting.selectionMode == SelectionMode.actionBased;
+        final actionBased = controller.setting.selectionMode == SelectionMode.actionBased;
 
-        final singleSelection = actionBased
-            ? !value.enableMultiSelection
-            : controller.singleSelection;
+        final singleSelection =
+            actionBased ? !value.enableMultiSelection : controller.singleSelection;
 
         final isSelected = value.selectedEntities.contains(entity);
         final index = value.selectedEntities.indexOf(entity.toDrishya);
@@ -217,7 +253,7 @@ class _SelectionCount extends StatelessWidget {
             radius: 14,
             child: Text(
               '${index + 1}',
-              style: Theme.of(context).textTheme.button?.copyWith(
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),
             ),

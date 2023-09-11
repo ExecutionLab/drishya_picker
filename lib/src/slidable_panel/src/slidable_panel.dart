@@ -189,8 +189,7 @@ class SlidablePanel extends StatefulWidget {
   State<SlidablePanel> createState() => _SlidablePanelState();
 }
 
-class _SlidablePanelState extends State<SlidablePanel>
-    with TickerProviderStateMixin {
+class _SlidablePanelState extends State<SlidablePanel> with TickerProviderStateMixin {
   late double _panelMinHeight;
   late double _panelMaxHeight;
   late double _remainingSpace;
@@ -222,8 +221,7 @@ class _SlidablePanelState extends State<SlidablePanel>
   var _pointerPositionBeforeScroll = Offset.zero;
 
   // true, if pointer is above halfway of the screen, false otherwise.
-  bool get _aboveHalfWay =>
-      _panelController.value.factor > (_setting.snapingPoint);
+  bool get _aboveHalfWay => _panelController.value.factor > (_setting.snapingPoint);
 
   @override
   void initState() {
@@ -262,7 +260,7 @@ class _SlidablePanelState extends State<SlidablePanel>
 
     if (!_shouldScroll(event.position.dy)) return;
 
-    _velocityTracker!.addPosition(event.timeStamp, event.position);
+    _velocityTracker?.addPosition(event.timeStamp, event.position);
 
     final state = _pointerInitialPosition.dy - event.position.dy < 0.0
         ? PanelState.slidingDown
@@ -270,24 +268,19 @@ class _SlidablePanelState extends State<SlidablePanel>
     final panelState = _panelController.value.state;
     final mediaQuery = MediaQuery.of(context);
 
-    if (!_scrollToTop &&
-        panelState == PanelState.min &&
-        state == PanelState.slidingUp) {
-      final pointerReachedHandler =
-          (mediaQuery.size.height - event.position.dy) > _panelMinHeight;
+    if (!_scrollToTop && panelState == PanelState.min && state == PanelState.slidingUp) {
+      final pointerReachedHandler = (mediaQuery.size.height - event.position.dy) > _panelMinHeight;
       _scrollToTop = pointerReachedHandler;
     }
 
-    if (!_scrollToBottom &&
-        panelState == PanelState.max &&
-        state == PanelState.slidingDown) {
+    if (!_scrollToBottom && panelState == PanelState.max && state == PanelState.slidingDown) {
       final isControllerOffsetZero =
           _scrollController.hasClients && _scrollController.offset == 0.0;
 
       final headerMinPosition = _size.height - _panelMaxHeight;
       final headerMaxPosition = headerMinPosition + _setting.headerHeight;
-      final isHandler = event.position.dy >= headerMinPosition &&
-          event.position.dy <= headerMaxPosition;
+      final isHandler =
+          event.position.dy >= headerMinPosition && event.position.dy <= headerMaxPosition;
       _scrollToBottom = isHandler || isControllerOffsetZero;
       if (_scrollToBottom) {
         _pointerPositionBeforeScroll = event.position;
@@ -296,11 +289,8 @@ class _SlidablePanelState extends State<SlidablePanel>
 
     if (_scrollToTop || _scrollToBottom) {
       final startingPX = event.position.dy -
-          (_scrollToTop
-              ? _setting.thumbHandlerHeight
-              : _pointerPositionBeforeScroll.dy);
-      final num remainingPX =
-          (_remainingSpace - startingPX).clamp(0.0, _remainingSpace);
+          (_scrollToTop ? _setting.thumbHandlerHeight : _pointerPositionBeforeScroll.dy);
+      final num remainingPX = (_remainingSpace - startingPX).clamp(0.0, _remainingSpace);
 
       final num factor = (remainingPX / _remainingSpace).clamp(0.0, 1.0);
       _slidePanelWithPosition(factor as double, state);
@@ -321,9 +311,8 @@ class _SlidablePanelState extends State<SlidablePanel>
       // -ve velocity -> bottom to top
       final dyVelocity = velocity.pixelsPerSecond.dy;
       final flingPanel = dyVelocity.abs() > 800.0;
-      final endValue = flingPanel
-          ? (dyVelocity.isNegative ? 1.0 : 0.0)
-          : (_aboveHalfWay ? 1.0 : 0.0);
+      final endValue =
+          flingPanel ? (dyVelocity.isNegative ? 1.0 : 0.0) : (_aboveHalfWay ? 1.0 : 0.0);
       _snapToPosition(endValue);
     }
 
@@ -369,8 +358,7 @@ class _SlidablePanelState extends State<SlidablePanel>
         final mediaQuery = MediaQuery.of(context);
 
         _size = constraints.biggest;
-        _panelMaxHeight =
-            _setting.maxHeight ?? _size.height - mediaQuery.padding.top;
+        _panelMaxHeight = _setting.maxHeight ?? _size.height - mediaQuery.padding.top;
         _panelMinHeight = _setting.minHeight ?? _panelMaxHeight * 0.37;
         _remainingSpace = _panelMaxHeight - _panelMinHeight;
 
@@ -390,9 +378,8 @@ class _SlidablePanelState extends State<SlidablePanel>
                   ValueListenableBuilder(
                     valueListenable: _panelController,
                     builder: (context, PanelValue value, child) {
-                      final height =
-                          (_panelMinHeight + (_remainingSpace * value.factor))
-                              .clamp(_panelMinHeight, _panelMaxHeight);
+                      final height = (_panelMinHeight + (_remainingSpace * value.factor))
+                          .clamp(_panelMinHeight, _panelMaxHeight);
                       return SizedBox(height: height, child: child);
                     },
                     child: Listener(
@@ -616,9 +603,6 @@ class PanelValue {
 
   @override
   int get hashCode {
-    return state.hashCode ^
-        factor.hashCode ^
-        offset.hashCode ^
-        position.hashCode;
+    return state.hashCode ^ factor.hashCode ^ offset.hashCode ^ position.hashCode;
   }
 }

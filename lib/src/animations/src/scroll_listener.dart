@@ -27,8 +27,7 @@ class ScrollListener extends StatefulWidget {
   final Widget child;
 
   ///
-  final void Function(ScrollController? controller, bool overScroll)
-      onScrollUpdate;
+  final void Function(ScrollController? controller, bool overScroll) onScrollUpdate;
 
   ///
   final void Function()? onScrollStart;
@@ -57,8 +56,7 @@ class ScrollListenerState extends State<ScrollListener> {
   var _continuousScroll = false;
 
   bool _isAtEdge(ScrollNotification notification) {
-    return notification.metrics.extentBefore == 0.0 ||
-        notification.metrics.extentAfter == 0.0;
+    return notification.metrics.extentBefore == 0.0 || notification.metrics.extentAfter == 0.0;
   }
 
   bool get _triggerAnyWhere => widget.triggerMode == TriggerMode.anywhere;
@@ -77,15 +75,12 @@ class ScrollListenerState extends State<ScrollListener> {
     _continuousScroll = true;
     final overScroll = atEdge &&
         (_triggerAnyWhere ||
-            (_isReadyOnStart &&
-                _triggerOnEdge &&
-                notification.dragDetails != null));
+            (_isReadyOnStart && _triggerOnEdge && notification.dragDetails != null));
     _finish(notification, overScroll);
   }
 
   void _overScroll(OverscrollNotification notification) {
-    final overScroll =
-        _triggerAnyWhere || (_triggerOnEdge && !_continuousScroll);
+    final overScroll = _triggerAnyWhere || (_triggerOnEdge && !_continuousScroll);
     _finish(notification, overScroll);
   }
 
@@ -97,7 +92,7 @@ class ScrollListenerState extends State<ScrollListener> {
 
   void _finish(ScrollNotification notification, bool overScroll) {
     final controller = notification.context != null
-        ? Scrollable.of(notification.context!)?.widget.controller
+        ? Scrollable.of(notification.context!).widget.controller
         : null;
 
     // final scrollDirection =

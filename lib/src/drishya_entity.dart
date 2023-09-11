@@ -7,6 +7,7 @@ import 'package:drishya_picker/drishya_picker.dart';
 class DrishyaEntity extends AssetEntity {
   ///
   const DrishyaEntity({
+    required this.entity,
     required String id,
     required int height,
     required int width,
@@ -49,6 +50,8 @@ class DrishyaEntity extends AssetEntity {
   /// Field where asset is stored
   final File? pickedFile;
 
+  final AssetEntity entity;
+
   ///
   @override
   DrishyaEntity copyWith({
@@ -71,6 +74,7 @@ class DrishyaEntity extends AssetEntity {
     int? subtype,
   }) =>
       DrishyaEntity(
+        entity: this,
         pickedThumbData: pickedThumbData ?? this.pickedThumbData,
         pickedFile: pickedFile ?? this.pickedFile,
         id: id ?? this.id,
@@ -95,6 +99,7 @@ class DrishyaEntity extends AssetEntity {
 extension AssetEntityX on AssetEntity {
   /// Convert [AssetEntity] to [DrishyaEntity]
   DrishyaEntity get toDrishya => DrishyaEntity(
+        entity: this,
         id: id,
         width: width,
         height: height,
