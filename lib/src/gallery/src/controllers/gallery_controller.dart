@@ -118,17 +118,8 @@ class GalleryController extends ValueNotifier<GalleryValue> {
     DrishyaEntity entity, {
     bool edited = false,
   }) {
-    // Check limit
-    if (reachedMaximumLimit) {
-      UIHandler.of(context).showSnackBar(
-        'Maximum selection limit of '
-        '${setting.maximumCount} has been reached!',
-      );
-      return;
-    }
-
     // Handle single selection mode
-    if (singleSelection) {
+    if (singleSelection && !reachedMaximumLimit) {
       if (_setting.selectionMode == SelectionMode.actionBased) {
         editEntity(context, entity).then((ety) {
           if (ety != null) {
@@ -154,6 +145,8 @@ class GalleryController extends ValueNotifier<GalleryValue> {
       value = value.copyWith(selectedEntities: entities);
       return;
     }
+
+    if (reachedMaximumLimit) { return; }
 
     // Unselect previous item and continue if it was edited
     if (edited && entities.isNotEmpty) {
