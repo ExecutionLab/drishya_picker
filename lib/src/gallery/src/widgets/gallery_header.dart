@@ -257,7 +257,7 @@ class _AlbumDetail extends StatelessWidget {
               isAll
                   ? controller.setting.albumTitle
                   : album.value.assetPathEntity?.name ?? 'Unknown',
-              style: Theme.of(context).textTheme.subtitle2!.copyWith(
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
@@ -272,7 +272,7 @@ class _AlbumDetail extends StatelessWidget {
           subtitle ?? 'Select',
           style: Theme.of(context)
               .textTheme
-              .caption!
+              .bodySmall!
               .copyWith(color: Colors.grey.shade500),
         ),
       ],
