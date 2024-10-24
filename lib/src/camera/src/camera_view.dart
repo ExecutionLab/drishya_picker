@@ -176,6 +176,7 @@ class _CameraViewState extends State<CameraView>
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
+        if (didPop) return;
         if (_camController.pageController.page == 0.0) {
           _camController.openCamera();
           return;

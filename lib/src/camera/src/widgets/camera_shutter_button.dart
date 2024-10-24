@@ -142,6 +142,7 @@ class _ShutterButtonState extends State<_ShutterButton>
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
+        if (didPop) return;
         if (_isRecording) {
           _stopRecording(createEntity: false);
         } else {

@@ -269,6 +269,7 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
       child: PopScope(
         canPop: false,
         onPopInvoked: (didPop) async {
+          if (didPop) return;
           final result = await _onClosePressed();
           if (result && context.mounted) {
             Navigator.pop(context);

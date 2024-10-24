@@ -45,6 +45,7 @@ class EditorCloseButton extends StatelessWidget {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
+        if (didPop) return;
         final result = await _onPressed(context, pop: false);
         if (result && context.mounted) {
           Navigator.pop(context);
