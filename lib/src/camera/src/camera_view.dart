@@ -45,7 +45,6 @@ class CameraView extends StatefulWidget {
   /// Open camera view for picking.
   static Future<List<DrishyaEntity>?> pick(
     BuildContext context, {
-
     /// Camera controller
     CamController? controller,
 
@@ -90,6 +89,7 @@ class _CameraViewState extends State<CameraView>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   late DrishyaEditingController _photoEditingController;
   late CamController _camController;
+  bool canPop = true;
 
   @override
   void initState() {
@@ -172,10 +172,11 @@ class _CameraViewState extends State<CameraView>
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
+  void _onWillPop() {
     if (_camController.pageController.page == 0.0) {
       _camController.openCamera();
-      return false;
+      canPop = false;
+      return;
     }
 
     /// [CameraShutterButton] is also using [WillPopScope] to handle
@@ -185,13 +186,14 @@ class _CameraViewState extends State<CameraView>
     // if (!_camController.value.isRecordingVideo) {
     //   await UIHandler.showStatusBar();
     // }
-    return true;
+    canPop = true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: canPop,
+      onPopInvoked: (_) => setState(_onWillPop),
       child: Scaffold(
         backgroundColor: Colors.black,
         body: ValueListenableBuilder<CamValue>(

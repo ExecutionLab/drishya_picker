@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 ///
 class EditorCloseButton extends StatelessWidget {
   ///
-  const EditorCloseButton({
+  EditorCloseButton({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -18,7 +18,10 @@ class EditorCloseButton extends StatelessWidget {
   ///
   final DrishyaEditingController controller;
 
-  Future<bool> _onPressed(BuildContext context, {bool pop = true}) async {
+  ///
+  final canPopNotifier = ValueNotifier<bool>(true);
+
+  void _onPressed(BuildContext context, {bool pop = true}) {
     if (!controller.value.hasStickers) {
       if (pop) {
         UIHandler.of(context).pop();
@@ -26,9 +29,9 @@ class EditorCloseButton extends StatelessWidget {
       //  else {
       //   await UIHandler.showStatusBar();
       // }
-      return true;
+      canPopNotifier.value = true;
     } else {
-      await showDialog<bool>(
+      showDialog<bool>(
         context: context,
         builder: (context) => const _AppDialog(),
       ).then((value) {
@@ -36,45 +39,51 @@ class EditorCloseButton extends StatelessWidget {
           controller.clear();
         }
       });
-      return false;
+      canPopNotifier.value = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      onPopInvoked: (_) => _onPressed(context, pop: false),
-      child: EditorBuilder(
-        controller: controller,
-        builder: (context, value, child) {
-          final crossFadeState = value.isEditing || value.hasFocus
-              ? CrossFadeState.showFirst
-              : CrossFadeState.showSecond;
-          return AppAnimatedCrossFade(
-            firstChild: const SizedBox(),
-            secondChild: child!,
-            crossFadeState: crossFadeState,
-          );
-        },
-        child: InkWell(
-          onTap: () {
-            _onPressed(context);
-          },
-          child: Container(
-            height: 36,
-            width: 36,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black26,
-            ),
-            child: const Icon(
-              CustomIcons.close,
-              color: Colors.white,
-              size: 16,
+    return ValueListenableBuilder<bool>(
+      valueListenable: canPopNotifier,
+      builder: (context, value, _) {
+        return PopScope(
+          canPop: value,
+          onPopInvoked: (didPop) => _onPressed(context, pop: false),
+          child: EditorBuilder(
+            controller: controller,
+            builder: (context, value, child) {
+              final crossFadeState = value.isEditing || value.hasFocus
+                  ? CrossFadeState.showFirst
+                  : CrossFadeState.showSecond;
+              return AppAnimatedCrossFade(
+                firstChild: const SizedBox(),
+                secondChild: child!,
+                crossFadeState: crossFadeState,
+              );
+            },
+            child: InkWell(
+              onTap: () {
+                _onPressed(context);
+              },
+              child: Container(
+                height: 36,
+                width: 36,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black26,
+                ),
+                child: const Icon(
+                  CustomIcons.close,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

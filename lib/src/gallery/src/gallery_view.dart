@@ -123,6 +123,7 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
   late final Albums _albums;
 
   double albumHeight = 0;
+  bool canPop = true;
 
   @override
   void initState() {
@@ -215,22 +216,28 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
     );
   }
 
-  Future<bool> _onClosePressed([bool? didPop]) async {
-    if (_animationController.isAnimating) return false;
+  void _onClosePressed() {
+    if (_animationController.isAnimating) {
+      canPop = false;
+      return;
+    }
 
     if (_controller.albumVisibility.value) {
       _toogleAlbumList(true);
-      return false;
+      canPop = false;
+      return;
     }
 
     if (_controller.value.selectedEntities.isNotEmpty) {
       _showAlert();
-      return false;
+      canPop = false;
+      return;
     }
 
     if (_controller.fullScreenMode) {
       UIHandler.of(context).pop();
-      return true;
+      canPop = true;
+      return;
     }
 
     if (_panelController.isVisible) {
@@ -239,10 +246,11 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
       } else {
         _panelController.closePanel();
       }
-      return false;
+      canPop = false;
+      return;
     }
 
-    return true;
+    canPop = true;
   }
 
   void _onSelectionClear() {
@@ -265,7 +273,8 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: panelSetting.overlayStyle,
       child: PopScope(
-        onPopInvoked: _onClosePressed,
+        canPop: canPop,
+        onPopInvoked: (didPop) => setState(_onClosePressed),
         child: Scaffold(
           backgroundColor: Colors.black,
           body: Stack(
