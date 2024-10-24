@@ -89,7 +89,6 @@ class _CameraViewState extends State<CameraView>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   late DrishyaEditingController _photoEditingController;
   late CamController _camController;
-  bool canPop = true;
 
   @override
   void initState() {
@@ -172,28 +171,25 @@ class _CameraViewState extends State<CameraView>
     super.dispose();
   }
 
-  void _onWillPop() {
-    if (_camController.pageController.page == 0.0) {
-      _camController.openCamera();
-      canPop = false;
-      return;
-    }
-
-    /// [CameraShutterButton] is also using [WillPopScope] to handle
-    /// video recording stuff. So always return true from here so that
-    /// it will also get this callback. Returning false from here will
-    /// never trigger onWillPop callback in [CameraShutterButton]
-    // if (!_camController.value.isRecordingVideo) {
-    //   await UIHandler.showStatusBar();
-    // }
-    canPop = true;
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: canPop,
-      onPopInvoked: (_) => setState(_onWillPop),
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (_camController.pageController.page == 0.0) {
+          _camController.openCamera();
+          return;
+        }
+
+        /// [CameraShutterButton] is also using [WillPopScope] to handle
+        /// video recording stuff. So always return true from here so that
+        /// it will also get this callback. Returning false from here will
+        /// never trigger onWillPop callback in [CameraShutterButton]
+        // if (!_camController.value.isRecordingVideo) {
+        //   await UIHandler.showStatusBar();
+        // }
+        Navigator.pop(context);
+      },
       child: Scaffold(
         backgroundColor: Colors.black,
         body: ValueListenableBuilder<CamValue>(

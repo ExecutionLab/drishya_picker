@@ -60,7 +60,6 @@ class _ShutterButtonState extends State<_ShutterButton>
   var _margin = 0.0;
   var _strokeWidth = 6.0;
   var _videoIconRadius = 10.0;
-  bool canPop = true;
 
   @override
   void initState() {
@@ -141,15 +140,13 @@ class _ShutterButtonState extends State<_ShutterButton>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvoked: (_) {
-        setState(() {
-          if (_isRecording) {
-            _stopRecording(createEntity: false);
-            canPop = false;
-          } else {
-            canPop = true;
-          }
-        });
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (_isRecording) {
+          _stopRecording(createEntity: false);
+        } else {
+          Navigator.pop(context);
+        }
       },
       child: SizedBox(
         height: widget.size,
