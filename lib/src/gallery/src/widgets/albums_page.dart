@@ -138,12 +138,18 @@ class _AlbumTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   // Total photos
-                  Text(
-                    album.value.assetPathEntity?.assetCount.toString() ?? '',
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 13,
-                    ),
+                  FutureBuilder(
+                    future: album.value.assetPathEntity?.assetCountAsync,
+                    initialData: 0,
+                    builder: (context, snapshot) {
+                      return Text(
+                        snapshot.data?.toString() ?? '',
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 13,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

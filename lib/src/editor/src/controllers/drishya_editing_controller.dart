@@ -174,7 +174,7 @@ class DrishyaEditingController extends ValueNotifier<EditorValue> {
         // image, create entity and return it
         final entity = await PhotoManager.editor.saveImage(
           bg.bytes,
-          title: const Uuid().v4(),
+          filename: const Uuid().v4(),
         );
         return entity?.toDrishya;
       } else {
@@ -187,7 +187,7 @@ class DrishyaEditingController extends ValueNotifier<EditorValue> {
         final data = byteData!.buffer.asUint8List();
         final entity = await PhotoManager.editor.saveImage(
           data,
-          title: const Uuid().v4(),
+          filename: const Uuid().v4(),
         );
         return entity?.toDrishya;
       }

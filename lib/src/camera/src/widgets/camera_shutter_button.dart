@@ -139,13 +139,15 @@ class _ShutterButtonState extends State<_ShutterButton>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
         if (_isRecording) {
           _stopRecording(createEntity: false);
-          return false;
+        } else {
+          Navigator.pop(context);
         }
-        return true;
       },
       child: SizedBox(
         height: widget.size,

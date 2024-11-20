@@ -36,7 +36,6 @@ class GalleryView extends StatefulWidget {
   /// Pick media
   static Future<List<DrishyaEntity>?> pick(
     BuildContext context, {
-
     /// Gallery controller
     GalleryController? controller,
 
@@ -173,7 +172,7 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
       onPressed: Navigator.of(context).pop,
       child: Text(
         'CANCEL',
-        style: Theme.of(context).textTheme.button!.copyWith(
+        style: Theme.of(context).textTheme.labelLarge!.copyWith(
               color: Colors.lightBlue,
             ),
       ),
@@ -182,7 +181,7 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
       onPressed: _onSelectionClear,
       child: Text(
         'USELECT ITEMS',
-        style: Theme.of(context).textTheme.button!.copyWith(
+        style: Theme.of(context).textTheme.labelLarge!.copyWith(
               color: Colors.blue,
             ),
       ),
@@ -191,13 +190,13 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
     final alertDialog = AlertDialog(
       title: Text(
         'Unselect these items?',
-        style: Theme.of(context).textTheme.headline6!.copyWith(
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: Colors.white70,
             ),
       ),
       content: Text(
         'Going back will undo the selections you made.',
-        style: Theme.of(context).textTheme.bodyText2!.copyWith(
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               color: Colors.grey.shade600,
             ),
       ),
@@ -217,7 +216,9 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
   }
 
   Future<bool> _onClosePressed() async {
-    if (_animationController.isAnimating) return false;
+    if (_animationController.isAnimating) {
+      return false;
+    }
 
     if (_controller.albumVisibility.value) {
       _toogleAlbumList(true);
@@ -265,8 +266,15 @@ class _ViewState extends State<_View> with SingleTickerProviderStateMixin {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: panelSetting.overlayStyle,
-      child: WillPopScope(
-        onWillPop: _onClosePressed,
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) return;
+          final result = await _onClosePressed();
+          if (result && context.mounted) {
+            Navigator.pop(context);
+          }
+        },
         child: Scaffold(
           backgroundColor: Colors.black,
           body: Stack(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drishya_picker/drishya_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 /// Widget to display [DrishyaEntity] thumbnail
 class EntityThumbnail extends StatefulWidget {
@@ -23,7 +24,8 @@ class EntityThumbnail extends StatefulWidget {
   State<EntityThumbnail> createState() => _EntityThumbnailState();
 }
 
-class _EntityThumbnailState extends State<EntityThumbnail> with AutomaticKeepAliveClientMixin {
+class _EntityThumbnailState extends State<EntityThumbnail>
+    with AutomaticKeepAliveClientMixin {
   File? file;
 
   @override
@@ -38,7 +40,8 @@ class _EntityThumbnailState extends State<EntityThumbnail> with AutomaticKeepAli
     Widget child = const SizedBox();
 
     //
-    if (widget.entity.type == AssetType.image || widget.entity.type == AssetType.video) {
+    if (widget.entity.type == AssetType.image ||
+        widget.entity.type == AssetType.video) {
       if (widget.entity.pickedThumbData != null) {
         child = Image.memory(
           widget.entity.pickedThumbData!,
@@ -62,7 +65,8 @@ class _EntityThumbnailState extends State<EntityThumbnail> with AutomaticKeepAli
       child = const Center(child: Icon(Icons.file_copy, color: Colors.white));
     }
 
-    if (widget.entity.type == AssetType.video || widget.entity.type == AssetType.audio) {
+    if (widget.entity.type == AssetType.video ||
+        widget.entity.type == AssetType.audio) {
       child = Stack(
         fit: StackFit.expand,
         children: [

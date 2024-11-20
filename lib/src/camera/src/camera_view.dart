@@ -45,7 +45,6 @@ class CameraView extends StatefulWidget {
   /// Open camera view for picking.
   static Future<List<DrishyaEntity>?> pick(
     BuildContext context, {
-
     /// Camera controller
     CamController? controller,
 
@@ -172,26 +171,26 @@ class _CameraViewState extends State<CameraView>
     super.dispose();
   }
 
-  Future<bool> _onWillPop() async {
-    if (_camController.pageController.page == 0.0) {
-      _camController.openCamera();
-      return false;
-    }
-
-    /// [CameraShutterButton] is also using [WillPopScope] to handle
-    /// video recording stuff. So always return true from here so that
-    /// it will also get this callback. Returning false from here will
-    /// never trigger onWillPop callback in [CameraShutterButton]
-    // if (!_camController.value.isRecordingVideo) {
-    //   await UIHandler.showStatusBar();
-    // }
-    return true;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        if (_camController.pageController.page == 0.0) {
+          _camController.openCamera();
+          return;
+        }
+
+        /// [CameraShutterButton] is also using [WillPopScope] to handle
+        /// video recording stuff. So always return true from here so that
+        /// it will also get this callback. Returning false from here will
+        /// never trigger onWillPop callback in [CameraShutterButton]
+        // if (!_camController.value.isRecordingVideo) {
+        //   await UIHandler.showStatusBar();
+        // }
+        Navigator.pop(context);
+      },
       child: Scaffold(
         backgroundColor: Colors.black,
         body: ValueListenableBuilder<CamValue>(
